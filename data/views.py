@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_GET,require_POST
+from django.core.paginator import Paginator,PageNotAnInteger,EmptyPage
 import json
 from .models import User
 
@@ -93,4 +94,25 @@ def get_menus(request):
     }
     data = [userMenu,permissionMenu,shopMenu,orderMenu,dataMenu]
     result = {"data":data,"msg":"获取菜单成功！"}
+    return HttpResponse(json.dumps(result))
+
+@require_GET
+def users(request):
+    # 当前页码
+    pagenum = request.GET.get("pagenum")
+    # 每页显示数
+    pagesize = request.GET.get("pagesize")
+    user_list = User.objects.all().values("username","mobile","email","mg_state","role_name")
+    user_list = list(user_list)
+    paginator = Paginator(user_list, pagesize)
+    try:
+        users = paginator.page(pagenum)
+    except PageNotAnInteger:
+        users = paginator.page(1)
+    except EmptyPage:
+        users = paginator.page(paginator.num_pages)
+    result = {
+        "users":list(users),
+        "msg":"获取用户列表成功！"
+    }
     return HttpResponse(json.dumps(result))
