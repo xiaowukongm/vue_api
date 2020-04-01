@@ -102,7 +102,7 @@ def users(request):
     pagenum = request.GET.get("pagenum")
     # 每页显示数
     pagesize = request.GET.get("pagesize")
-    user_list = User.objects.all().values("username","mobile","email","mg_state","role_name")
+    user_list = User.objects.all().values("id","username","mobile","email","mg_state","role_name")
     user_list = list(user_list)
     paginator = Paginator(user_list, pagesize)
     try:
@@ -113,6 +113,13 @@ def users(request):
         users = paginator.page(paginator.num_pages)
     result = {
         "users":list(users),
+        "total":len(user_list),
         "msg":"获取用户列表成功！"
     }
     return HttpResponse(json.dumps(result))
+
+def update_user_state(request):
+    user_id = request.GET.get("id")
+    mg_state = True if request.GET.get("state") == "true" else False
+    result = User.objects.filter(id=int(user_id)).update(mg_state=mg_state)
+    return HttpResponse(result)
