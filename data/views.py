@@ -1,3 +1,6 @@
+import os
+import shutil
+
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_GET,require_POST
@@ -123,3 +126,54 @@ def update_user_state(request):
     mg_state = True if request.GET.get("state") == "true" else False
     result = User.objects.filter(id=int(user_id)).update(mg_state=mg_state)
     return HttpResponse(result)
+
+def copy_case(request):
+    # 参数格式：[{name: "白居易", value: "1", caseName: "ss", casePath: "E:\python_project\user\", sameName: false}]
+    params = json.loads(request.body)
+    print(params)
+    userList = params["userList"]
+    oldCasePath = params["oldCasePath"]
+    #
+    # # 复制文件到用户目录下
+    # # 首先判断有没有此用户的文件夹，再判断此用户文件夹下有没有此文件
+    # # 当选多个人的时候，其中一个人重名，该怎么处理，前端提交时就做校验是否重名如果重名提示修改名称
+    # # result： copyState存放每个人复制文件的状态
+    result = {"result": "fail"}
+    for param in userList:
+        userName = param["name"]
+        number = param["value"]
+        caseName = param["caseName"]
+        casePath = param["casePath"]
+        fpath = casePath+number
+        newCasePath = fpath+"\\"+caseName
+
+        if not os.path.exists(fpath):
+            os.makedirs(fpath)
+        # 如果重名返回提示修改名称
+        shutil.copyfile(oldCasePath,newCasePath)
+        # 写入分享标志字段
+        with open(newCasePath,"w") as f:
+            f.write(json.dumps({"share":True}))
+    return HttpResponse(json.dumps(result))
+
+def check_copy_case_name(request):
+    params = json.loads(request.body)
+    # print(params)
+    userListAndCasename = params["userListAndCasename"]
+    copyState = []
+    result = {"result": "success", "copyState": copyState}
+    for param in userListAndCasename:
+        userName = param["name"]
+        value = param["value"]
+        casePath = param["casePath"]
+        caseName = param["caseName"]
+        fpath = "E:\python_project\\user\\" + value
+        newCasePath = fpath + "\\" + caseName
+        # print(newCasePath)
+        if os.path.exists(newCasePath):
+            result["copyState"].append({"name": userName, "value": value,"caseName":caseName,"casePath":casePath, "sameName": True})
+            result["result"] = "fail"
+        else:
+            result["copyState"].append({"name": userName, "value": value, "caseName":caseName,"casePath":casePath,"sameName": False})
+    print(result)
+    return HttpResponse(json.dumps(result))
