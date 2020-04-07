@@ -105,7 +105,11 @@ def users(request):
     pagenum = request.GET.get("pagenum")
     # 每页显示数
     pagesize = request.GET.get("pagesize")
+    # 搜索查询
+    query = request.GET.get("query")
     user_list = User.objects.all().values("id","username","mobile","email","mg_state","role_name")
+    if query:
+        user_list = User.objects.filter(username=query).values("id", "username", "mobile", "email", "mg_state", "role_name")
     user_list = list(user_list)
     paginator = Paginator(user_list, pagesize)
     try:
@@ -121,11 +125,26 @@ def users(request):
     }
     return HttpResponse(json.dumps(result))
 
+
 def update_user_state(request):
     user_id = request.GET.get("id")
     mg_state = True if request.GET.get("state") == "true" else False
     result = User.objects.filter(id=int(user_id)).update(mg_state=mg_state)
     return HttpResponse(result)
+
+def addUser(request):
+    result = {"result":"fail"}
+    username = request.POST.get("username")
+    password = request.POST.get("password")
+    email = request.POST.get("email")
+    mobile = request.POST.get("mobile")
+    user = User(username=username, password=password, email=email, mobile=mobile)
+    a = user.save()
+    print(a)
+    result["result"] = "success"
+    return HttpResponse(json.dumps(result))
+
+
 
 def copy_case(request):
     # 参数格式：[{name: "白居易", value: "1", caseName: "ss", casePath: "E:\python_project\user\", sameName: false}]
