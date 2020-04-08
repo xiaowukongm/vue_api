@@ -139,13 +139,52 @@ def addUser(request):
     email = request.POST.get("email")
     mobile = request.POST.get("mobile")
     user = User(username=username, password=password, email=email, mobile=mobile)
-    a = user.save()
-    print(a)
+    user.save()
     result["result"] = "success"
     return HttpResponse(json.dumps(result))
 
 
+def get_user_by_id(request):
+    result = {"result": "fail","user":None}
+    user_id = request.GET.get("user_id")
+    try:
+        user = User.objects.filter(id=user_id).values("id", "username", "mobile", "email", "mg_state", "role_name")
+        result["result"] = "success"
+        result["user"] = user[0]
+    except Exception as e:
+        raise e
+    return HttpResponse(json.dumps(result))
 
+
+def edit_user(request):
+    result = {"result": "fail"}
+    user_id = request.POST.get("id")
+    print(user_id)
+    update_data = {
+        "email":request.POST.get("email"),
+        "mobile":request.POST.get("mobile")
+    }
+    try:
+        User.objects.filter(id=user_id).update(**update_data)
+        result["result"] = "success"
+    except Exception as e:
+        raise e
+    return HttpResponse(json.dumps(result))
+
+
+def delete_user(request):
+    result = {"result": "fail"}
+    user_id = request.GET.get("user_id")
+    print(user_id)
+    try:
+        if user_id:
+            User.objects.filter(id=user_id).delete()
+            result["result"] = "success"
+    except Exception as e:
+        raise e
+    return HttpResponse(json.dumps(result))
+
+# ==================================================================================
 def copy_case(request):
     # 参数格式：[{name: "白居易", value: "1", caseName: "ss", casePath: "E:\python_project\user\", sameName: false}]
     params = json.loads(request.body)
