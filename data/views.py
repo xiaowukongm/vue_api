@@ -6,7 +6,7 @@ from django.shortcuts import render
 from django.views.decorators.http import require_GET,require_POST
 from django.core.paginator import Paginator,PageNotAnInteger,EmptyPage
 import json
-from .models import User
+from .models import User,premission
 
 
 @require_POST
@@ -183,6 +183,44 @@ def delete_user(request):
     except Exception as e:
         raise e
     return HttpResponse(json.dumps(result))
+
+# 获取权限列表
+def get_premission_list(request):
+    three_level = premission.objects.filter(ps_level=2)
+    premission_list = []
+    for i in three_level:
+        parent_id = i.ps_pid
+        two_parent = premission.objects.filter(id=parent_id)
+        two_parent_ps = two_parent[0]
+        one_parent = premission.objects.filter(id=two_parent_ps.ps_pid)
+        one_parent_ps = one_parent[0]
+        parent_ps_info = {
+            "id": one_parent_ps.id,
+            'authName': one_parent_ps.ps_name,
+            'path': one_parent_ps.ps_c,
+            'pid': one_parent_ps.ps_pid,
+            "children": [
+                {
+                    "id":two_parent_ps.id,
+                    'authName': two_parent_ps.ps_name,
+                    'path': two_parent_ps.ps_c,
+                    'pid': two_parent_ps.ps_pid,
+                    "children": [
+                        {
+                            "id": i.id,
+                            'authName': i.ps_name,
+                            'path': i.ps_c,
+                            'pid': i.ps_pid,
+                        }
+
+                    ]
+                }
+            ]
+        }
+        premission_list.append(parent_ps_info)
+    print(premission_list)
+    return HttpResponse(json.dumps(premission_list))
+
 
 # ==================================================================================
 def copy_case(request):

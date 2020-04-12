@@ -10,6 +10,7 @@ urlpatterns = [
     url(r'^get_user_by_id/', views.get_user_by_id,name="get_user_by_id"),
     url(r'^edit_user/', views.edit_user,name="edit_user"),
     url(r'^delete_user/', views.delete_user,name="delete_user"),
+    url(r'^get_premission_list/', views.get_premission_list,name="get_premission_list"),
 
 
 
