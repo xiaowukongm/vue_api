@@ -12,7 +12,7 @@ class User(models.Model):
 
 
 # 角色
-class role(    models.Model):
+class role(models.Model):
     role_name = models.CharField(max_length=50)
     # 所拥有的权限ids
     ps_ids = models.CharField(max_length=50)
@@ -27,3 +27,14 @@ class premission(models.Model):
     ps_level = models.CharField(max_length=50)
     ps_c = models.CharField(max_length=50)
     ps_d = models.CharField(max_length=50)
+
+
+# 权限api
+class premission_api(models.Model):
+    # 所对应的权限id
+    ps_id = models.ForeignKey("data.premission",on_delete=models.SET_NULL,null=True)
+    # 权限动作，例如get_premission_list
+    ps_api_action = models.CharField(max_length=50,default="")
+    ps_api_order = models.IntegerField(null=True)
+    # 访问路径
+    ps_api_path = models.CharField(default="",max_length=50)

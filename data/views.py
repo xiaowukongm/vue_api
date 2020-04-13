@@ -1,12 +1,12 @@
 import os
 import shutil
-
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_GET,require_POST
 from django.core.paginator import Paginator,PageNotAnInteger,EmptyPage
 import json
-from .models import User,premission
+from .models import User,premission,premission_api
+from .permissions import check_permission
 
 
 @require_POST
@@ -17,6 +17,8 @@ def login(request):
     obj = User.objects.filter(username=username,password=password)
     if obj:
         result = {"status": "success", "msg": "登录成功！","login_status":1}
+        # 设置session
+        request.session["user_id"] = obj[0].id
     return HttpResponse(json.dumps(result))
 
 @require_GET
@@ -186,40 +188,45 @@ def delete_user(request):
 
 # 获取权限列表
 def get_premission_list(request):
-    three_level = premission.objects.filter(ps_level=2)
-    premission_list = []
-    for i in three_level:
-        parent_id = i.ps_pid
-        two_parent = premission.objects.filter(id=parent_id)
-        two_parent_ps = two_parent[0]
-        one_parent = premission.objects.filter(id=two_parent_ps.ps_pid)
-        one_parent_ps = one_parent[0]
-        parent_ps_info = {
-            "id": one_parent_ps.id,
-            'authName': one_parent_ps.ps_name,
-            'path': one_parent_ps.ps_c,
-            'pid': one_parent_ps.ps_pid,
-            "children": [
-                {
-                    "id":two_parent_ps.id,
-                    'authName': two_parent_ps.ps_name,
-                    'path': two_parent_ps.ps_c,
-                    'pid': two_parent_ps.ps_pid,
-                    "children": [
-                        {
-                            "id": i.id,
-                            'authName': i.ps_name,
-                            'path': i.ps_c,
-                            'pid': i.ps_pid,
-                        }
+    premission_list = premission.objects.all()
+    # 存放一级权限
+    premission_dict = {}
+    for i in premission_list:
+        if i.ps_level == "0":
+            premission_api_obj = premission_api.objects.filter(ps_id=i.id)
+            premission_dict[i.id] = {
+                "id":i.id,
+                "authName":i.ps_name,
+                "path":premission_api_obj[0].ps_api_path,
+                "pid":i.ps_pid,
+                "children":[]
+            }
+    tmpResult = {}
+    # 二级权限
+    for i in premission_list:
+        if i.ps_level == "1":
+            premission_api_obj = premission_api.objects.filter(ps_id=i.id)
+            tmpResult[i.id] = {
+                "id": i.id,
+                "authName": i.ps_name,
+                "path": premission_api_obj[0].ps_api_path,
+                "pid": i.ps_pid,
+                "children": []
+            }
+            premission_dict[i.ps_pid]["children"].append(tmpResult[i.id])
 
-                    ]
-                }
-            ]
-        }
-        premission_list.append(parent_ps_info)
-    print(premission_list)
-    return HttpResponse(json.dumps(premission_list))
+    # 3级权限
+    for i in premission_list:
+        if i.ps_level == "2":
+            premission_api_obj = premission_api.objects.filter(ps_id=i.id)
+
+            tmpResult[i.ps_pid]["children"].append({
+                "id": i.id,
+                "authName": i.ps_name,
+                "path": premission_api_obj[0].ps_api_path,
+                "pid": i.ps_pid
+            })
+    return HttpResponse(json.dumps(premission_dict))
 
 
 # ==================================================================================
