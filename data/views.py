@@ -1,11 +1,13 @@
 import os
 import shutil
+
+from django.core import serializers
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_GET,require_POST
 from django.core.paginator import Paginator,PageNotAnInteger,EmptyPage
 import json
-from .models import User,premission,premission_api
+from .models import User,premission,premission_api,role
 from .permissions import check_permission
 
 
@@ -46,13 +48,13 @@ def get_menus(request):
             {
                 "id": 102-1,
                 "authName": "角色列表",
-                "path": "role",
+                "path": "roles",
                 "children":[],
             },
             {
                 "id": 102 - 2,
                 "authName": "权限列表",
-                "path": "permission",
+                "path": "rights",
                 "children": [],
             }
 
@@ -186,8 +188,9 @@ def delete_user(request):
         raise e
     return HttpResponse(json.dumps(result))
 
-# 获取权限列表
-def get_premission_list(request):
+# 获取权限列表树形结构
+# @check_permission
+def get_premission_tree(request):
     premission_list = premission.objects.all()
     # 存放一级权限
     premission_dict = {}
@@ -228,6 +231,33 @@ def get_premission_list(request):
             })
     return HttpResponse(json.dumps(premission_dict))
 
+
+# 获取权限列表
+def get_premission_list(request):
+    result = {"result":"fail","right_list":[]}
+    try:
+        premission_list = premission.objects.all()
+        premission_final_list = []
+        for i in premission_list:
+            premission_api_obj = premission_api.objects.filter(ps_id=i.id)
+            permission_dict = {
+                "id": i.id,
+                "authName": i.ps_name,
+                "level":i.ps_level,
+                "path": premission_api_obj[0].ps_api_path,
+                "pid": i.ps_pid,
+            }
+            premission_final_list.append(permission_dict)
+        result["result"] = 'success'
+        result["right_list"] = list(premission_final_list)
+    except Exception as e:
+        raise e
+    return HttpResponse(json.dumps(result))
+
+# 获取角色列表
+def roles(request):
+    result = serializers.serialize('json', role.objects.all())
+    return HttpResponse(json.dumps(result))
 
 # ==================================================================================
 def copy_case(request):

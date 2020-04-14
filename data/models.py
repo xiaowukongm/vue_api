@@ -8,7 +8,7 @@ class User(models.Model):
     email = models.CharField(max_length=50,default="")
     mg_state = models.BooleanField(default=False)
     role_name = models.CharField(max_length=50,default="")
-    role = models.ForeignKey("data.User",on_delete=models.SET_NULL,null=True)
+    role = models.ForeignKey("data.role",on_delete=models.SET_NULL,null=True)
 
 
 # 角色

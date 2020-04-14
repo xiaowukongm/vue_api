@@ -144,4 +144,4 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
-# SESSION_COOKIE_DOMAIN = '.example.com'
+SESSION_COOKIE_DOMAIN = '127.0.0.1'

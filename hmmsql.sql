@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50725
 File Encoding         : 65001
 
-Date: 2020-04-12 23:12:48
+Date: 2020-04-14 23:56:28
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -61,7 +61,7 @@ CREATE TABLE `auth_permission` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `auth_permission_content_type_id_codename_01ab375a_uniq` (`content_type_id`,`codename`),
   CONSTRAINT `auth_permission_content_type_id_2f476e4b_fk_django_co` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of auth_permission
@@ -102,6 +102,14 @@ INSERT INTO `auth_permission` VALUES ('33', 'Can add premission', '9', 'add_prem
 INSERT INTO `auth_permission` VALUES ('34', 'Can change premission', '9', 'change_premission');
 INSERT INTO `auth_permission` VALUES ('35', 'Can delete premission', '9', 'delete_premission');
 INSERT INTO `auth_permission` VALUES ('36', 'Can view premission', '9', 'view_premission');
+INSERT INTO `auth_permission` VALUES ('37', 'Can add permission_api', '10', 'add_permission_api');
+INSERT INTO `auth_permission` VALUES ('38', 'Can change permission_api', '10', 'change_permission_api');
+INSERT INTO `auth_permission` VALUES ('39', 'Can delete permission_api', '10', 'delete_permission_api');
+INSERT INTO `auth_permission` VALUES ('40', 'Can view permission_api', '10', 'view_permission_api');
+INSERT INTO `auth_permission` VALUES ('41', 'Can add premission_api', '10', 'add_premission_api');
+INSERT INTO `auth_permission` VALUES ('42', 'Can change premission_api', '10', 'change_premission_api');
+INSERT INTO `auth_permission` VALUES ('43', 'Can delete premission_api', '10', 'delete_premission_api');
+INSERT INTO `auth_permission` VALUES ('44', 'Can view premission_api', '10', 'view_premission_api');
 
 -- ----------------------------
 -- Table structure for auth_user
@@ -177,11 +185,68 @@ CREATE TABLE `data_premission` (
   `ps_c` varchar(50) NOT NULL,
   `ps_d` varchar(50) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of data_premission
 -- ----------------------------
+INSERT INTO `data_premission` VALUES ('1', '商品管理', '0', '0', '', '');
+INSERT INTO `data_premission` VALUES ('2', '用户管理', '0', '0', '', '');
+INSERT INTO `data_premission` VALUES ('3', '权限管理', '0', '0', '', '');
+INSERT INTO `data_premission` VALUES ('4', '订单管理', '0', '0', '', '');
+INSERT INTO `data_premission` VALUES ('5', '数据统计', '0', '0', '', '');
+INSERT INTO `data_premission` VALUES ('6', '用户列表', '2', '1', '', '');
+INSERT INTO `data_premission` VALUES ('7', '角色列表', '3', '1', '', '');
+INSERT INTO `data_premission` VALUES ('8', '权限列表', '3', '1', '', '');
+INSERT INTO `data_premission` VALUES ('9', '添加用户', '6', '2', '', '');
+INSERT INTO `data_premission` VALUES ('10', '删除用户', '6', '2', '', '');
+INSERT INTO `data_premission` VALUES ('11', '更新用户', '6', '2', '', '');
+INSERT INTO `data_premission` VALUES ('12', '获取用户详情', '6', '2', '', '');
+INSERT INTO `data_premission` VALUES ('13', '添加角色', '7', '2', ' ', ' ');
+INSERT INTO `data_premission` VALUES ('14', '删除角色', '7', '2', ' ', ' ');
+INSERT INTO `data_premission` VALUES ('15', '获取角色列表', '7', '2', ' ', ' ');
+INSERT INTO `data_premission` VALUES ('16', '获取角色详情', '7', '2', ' ', ' ');
+INSERT INTO `data_premission` VALUES ('17', '更新角色信息', '7', '2', ' ', ' ');
+INSERT INTO `data_premission` VALUES ('18', '更新角色权限', '7', '2', ' ', ' ');
+INSERT INTO `data_premission` VALUES ('19', '分配用户角色', '6', '2', ' ', ' ');
+
+-- ----------------------------
+-- Table structure for data_premission_api
+-- ----------------------------
+DROP TABLE IF EXISTS `data_premission_api`;
+CREATE TABLE `data_premission_api` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `ps_api_action` varchar(50) NOT NULL,
+  `ps_api_order` int(11) DEFAULT NULL,
+  `ps_id_id` int(11) DEFAULT NULL,
+  `ps_api_path` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `data_permission_api_ps_id_id_d53af40e_fk_data_premission_id` (`ps_id_id`),
+  CONSTRAINT `data_permission_api_ps_id_id_d53af40e_fk_data_premission_id` FOREIGN KEY (`ps_id_id`) REFERENCES `data_premission` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of data_premission_api
+-- ----------------------------
+INSERT INTO `data_premission_api` VALUES ('1', ' ', null, '1', 'goods');
+INSERT INTO `data_premission_api` VALUES ('2', ' ', null, '2', 'users');
+INSERT INTO `data_premission_api` VALUES ('3', ' ', null, '3', 'rights');
+INSERT INTO `data_premission_api` VALUES ('4', ' ', null, '4', 'orders');
+INSERT INTO `data_premission_api` VALUES ('5', 'get_premission_list', null, '8', 'rights');
+INSERT INTO `data_premission_api` VALUES ('6', ' ', null, '5', 'reports');
+INSERT INTO `data_premission_api` VALUES ('7', 'getAllUsers', null, '6', 'users');
+INSERT INTO `data_premission_api` VALUES ('8', 'createUser', null, '9', 'users');
+INSERT INTO `data_premission_api` VALUES ('9', 'deleteUser', null, '10', 'users');
+INSERT INTO `data_premission_api` VALUES ('10', 'updateUser', null, '11', 'users');
+INSERT INTO `data_premission_api` VALUES ('11', 'getUser', null, '12', 'users');
+INSERT INTO `data_premission_api` VALUES ('12', 'getAllRoles', null, '7', 'roles');
+INSERT INTO `data_premission_api` VALUES ('13', 'createRole', null, '13', 'roles');
+INSERT INTO `data_premission_api` VALUES ('14', 'deleteRole', null, '14', 'roles');
+INSERT INTO `data_premission_api` VALUES ('15', 'updateRole', null, '17', 'roles');
+INSERT INTO `data_premission_api` VALUES ('16', 'getRoleById', null, '16', 'roles');
+INSERT INTO `data_premission_api` VALUES ('17', 'updateRoleRight', null, '18', 'roles');
+INSERT INTO `data_premission_api` VALUES ('18', 'setRole', null, '19', 'roles');
+INSERT INTO `data_premission_api` VALUES ('19', 'getAllRoles', null, '15', 'roles');
 
 -- ----------------------------
 -- Table structure for data_role
@@ -193,11 +258,14 @@ CREATE TABLE `data_role` (
   `ps_ids` varchar(50) NOT NULL,
   `role_desc` varchar(50) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of data_role
 -- ----------------------------
+INSERT INTO `data_role` VALUES ('1', '超级管理员', '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19', '超级管理员');
+INSERT INTO `data_role` VALUES ('2', '测试角色', '1,2', '测试');
+INSERT INTO `data_role` VALUES ('3', '测试角色2', '3,4,5,6', '测试');
 
 -- ----------------------------
 -- Table structure for data_user
@@ -213,21 +281,21 @@ CREATE TABLE `data_user` (
   `role_name` varchar(50) NOT NULL,
   `role_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `data_user_role_id_77664869_fk_data_user_id` (`role_id`),
-  CONSTRAINT `data_user_role_id_77664869_fk_data_user_id` FOREIGN KEY (`role_id`) REFERENCES `data_user` (`id`)
+  KEY `data_user_role_id_77664869_fk_data_role_id` (`role_id`),
+  CONSTRAINT `data_user_role_id_77664869_fk_data_role_id` FOREIGN KEY (`role_id`) REFERENCES `data_role` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of data_user
 -- ----------------------------
-INSERT INTO `data_user` VALUES ('1', 'hmm', '123456', '15829742201', '2363497179@qq.com', '1', '超级管理员', null);
-INSERT INTO `data_user` VALUES ('2', '李白', '123456', '1223345', '252@qq.com', '0', '超级管理员', null);
-INSERT INTO `data_user` VALUES ('3', '白居易', '123456', '1223345', '252@qq.com', '0', '超级管理员', null);
-INSERT INTO `data_user` VALUES ('4', '杜甫', '123456', '1223345', '252@qq.com', '0', '超级管理员', null);
-INSERT INTO `data_user` VALUES ('5', '张大千', '123456', '1223345', '252@qq.com', '0', '超级管理员', null);
-INSERT INTO `data_user` VALUES ('6', '齐白石', '123456', '1223345', '252@qq.com', '0', '超级管理员', null);
-INSERT INTO `data_user` VALUES ('7', '我爱你', '123456', '1223345', '252@qq.com', '0', '超级管理员', null);
-INSERT INTO `data_user` VALUES ('8', '唐伯虎', '123456', '12345678911', '123456@qq.com', '0', '', null);
+INSERT INTO `data_user` VALUES ('1', 'hmm', '123456', '15829742201', '2363497179@qq.com', '1', '超级管理员', '1');
+INSERT INTO `data_user` VALUES ('2', '李白', '123456', '1223345', '252@qq.com', '0', '超级管理员', '2');
+INSERT INTO `data_user` VALUES ('3', '白居易', '123456', '1223345', '252@qq.com', '0', '超级管理员', '2');
+INSERT INTO `data_user` VALUES ('4', '杜甫', '123456', '1223345', '252@qq.com', '0', '超级管理员', '3');
+INSERT INTO `data_user` VALUES ('5', '张大千', '123456', '1223345', '252@qq.com', '0', '超级管理员', '3');
+INSERT INTO `data_user` VALUES ('6', '齐白石', '123456', '1223345', '252@qq.com', '0', '超级管理员', '3');
+INSERT INTO `data_user` VALUES ('7', '我爱你', '123456', '1223345', '252@qq.com', '0', '超级管理员', '2');
+INSERT INTO `data_user` VALUES ('8', '唐伯虎', '123456', '12345678911', '123456@qq.com', '0', '', '3');
 
 -- ----------------------------
 -- Table structure for django_admin_log
@@ -263,7 +331,7 @@ CREATE TABLE `django_content_type` (
   `model` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `django_content_type_app_label_model_76bd3d3b_uniq` (`app_label`,`model`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of django_content_type
@@ -274,6 +342,7 @@ INSERT INTO `django_content_type` VALUES ('2', 'auth', 'permission');
 INSERT INTO `django_content_type` VALUES ('4', 'auth', 'user');
 INSERT INTO `django_content_type` VALUES ('5', 'contenttypes', 'contenttype');
 INSERT INTO `django_content_type` VALUES ('9', 'data', 'premission');
+INSERT INTO `django_content_type` VALUES ('10', 'data', 'premission_api');
 INSERT INTO `django_content_type` VALUES ('8', 'data', 'role');
 INSERT INTO `django_content_type` VALUES ('7', 'data', 'user');
 INSERT INTO `django_content_type` VALUES ('6', 'sessions', 'session');
@@ -288,7 +357,7 @@ CREATE TABLE `django_migrations` (
   `name` varchar(255) NOT NULL,
   `applied` datetime(6) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of django_migrations
@@ -311,6 +380,11 @@ INSERT INTO `django_migrations` VALUES ('15', 'auth', '0010_alter_group_name_max
 INSERT INTO `django_migrations` VALUES ('16', 'auth', '0011_update_proxy_permissions', '2020-03-28 10:00:44.479462');
 INSERT INTO `django_migrations` VALUES ('18', 'sessions', '0001_initial', '2020-03-28 10:00:44.540379');
 INSERT INTO `django_migrations` VALUES ('21', 'data', '0001_initial', '2020-04-12 15:07:53.457454');
+INSERT INTO `django_migrations` VALUES ('22', 'data', '0002_permission_api', '2020-04-13 11:57:13.960953');
+INSERT INTO `django_migrations` VALUES ('23', 'data', '0003_permission_api_ps_api_path', '2020-04-13 14:39:12.818458');
+INSERT INTO `django_migrations` VALUES ('24', 'data', '0004_auto_20200413_2248', '2020-04-13 14:48:17.538659');
+INSERT INTO `django_migrations` VALUES ('25', 'data', '0005_auto_20200413_2335', '2020-04-13 15:36:21.540695');
+INSERT INTO `django_migrations` VALUES ('26', 'data', '0006_auto_20200414_2202', '2020-04-14 14:02:21.726760');
 
 -- ----------------------------
 -- Table structure for django_session
@@ -327,6 +401,34 @@ CREATE TABLE `django_session` (
 -- ----------------------------
 -- Records of django_session
 -- ----------------------------
+INSERT INTO `django_session` VALUES ('0uvzitlkxdc3qm3en8zsoaw9it20z10w', 'ODkzY2IxY2ViNjdkYWIwZmUzMjY1ZjA4ZWZjODk5ZWEyNDAyZDFiYzp7InVzZXJfaWQiOjF9', '2020-04-14 01:37:04.392738');
+INSERT INTO `django_session` VALUES ('3314p9guur9w96z1mirgwibxxafkiv6b', 'ODkzY2IxY2ViNjdkYWIwZmUzMjY1ZjA4ZWZjODk5ZWEyNDAyZDFiYzp7InVzZXJfaWQiOjF9', '2020-04-14 02:12:44.307456');
+INSERT INTO `django_session` VALUES ('3epzje40stctltvtdmcnrprdxe3m05vb', 'ODkzY2IxY2ViNjdkYWIwZmUzMjY1ZjA4ZWZjODk5ZWEyNDAyZDFiYzp7InVzZXJfaWQiOjF9', '2020-04-14 01:44:12.488500');
+INSERT INTO `django_session` VALUES ('4207mjyed8b3rn29ykt0z029484gr8kn', 'ODkzY2IxY2ViNjdkYWIwZmUzMjY1ZjA4ZWZjODk5ZWEyNDAyZDFiYzp7InVzZXJfaWQiOjF9', '2020-04-14 02:03:20.856895');
+INSERT INTO `django_session` VALUES ('49z7duxl2ulcigzzakod21sbvfaka630', 'ODkzY2IxY2ViNjdkYWIwZmUzMjY1ZjA4ZWZjODk5ZWEyNDAyZDFiYzp7InVzZXJfaWQiOjF9', '2020-04-14 02:15:46.845407');
+INSERT INTO `django_session` VALUES ('5eobdzztqnej8mnrf8na73sty0ikacyv', 'ODkzY2IxY2ViNjdkYWIwZmUzMjY1ZjA4ZWZjODk5ZWEyNDAyZDFiYzp7InVzZXJfaWQiOjF9', '2020-04-27 12:47:34.542931');
+INSERT INTO `django_session` VALUES ('8g8zyv4y19jeykcxnzfev2rz77h329g5', 'ODkzY2IxY2ViNjdkYWIwZmUzMjY1ZjA4ZWZjODk5ZWEyNDAyZDFiYzp7InVzZXJfaWQiOjF9', '2020-04-14 01:53:43.510094');
+INSERT INTO `django_session` VALUES ('917p49vaehcup19fbfr2m4zpkd8ltaod', 'ODkzY2IxY2ViNjdkYWIwZmUzMjY1ZjA4ZWZjODk5ZWEyNDAyZDFiYzp7InVzZXJfaWQiOjF9', '2020-04-14 01:49:29.999567');
+INSERT INTO `django_session` VALUES ('9ngq7ny54l2xfvigmqdo7jcx9vq1mk18', 'ODkzY2IxY2ViNjdkYWIwZmUzMjY1ZjA4ZWZjODk5ZWEyNDAyZDFiYzp7InVzZXJfaWQiOjF9', '2020-04-14 02:03:55.607120');
+INSERT INTO `django_session` VALUES ('cqzyy97fka4xdcagfdj5l8dm002tauto', 'ODkzY2IxY2ViNjdkYWIwZmUzMjY1ZjA4ZWZjODk5ZWEyNDAyZDFiYzp7InVzZXJfaWQiOjF9', '2020-04-14 02:13:50.929165');
+INSERT INTO `django_session` VALUES ('d6d4ux8nfdfx31hi04svwc7dfiuo99lp', 'ODkzY2IxY2ViNjdkYWIwZmUzMjY1ZjA4ZWZjODk5ZWEyNDAyZDFiYzp7InVzZXJfaWQiOjF9', '2020-04-14 02:15:14.671897');
+INSERT INTO `django_session` VALUES ('f24u63zq5ruj9k19da94hm5wzbe0skii', 'ODkzY2IxY2ViNjdkYWIwZmUzMjY1ZjA4ZWZjODk5ZWEyNDAyZDFiYzp7InVzZXJfaWQiOjF9', '2020-04-14 01:43:48.561649');
+INSERT INTO `django_session` VALUES ('fhozdow71vol2w37292r0w5w2tpx8smz', 'ODkzY2IxY2ViNjdkYWIwZmUzMjY1ZjA4ZWZjODk5ZWEyNDAyZDFiYzp7InVzZXJfaWQiOjF9', '2020-04-27 13:25:43.567572');
+INSERT INTO `django_session` VALUES ('hod11000rb1d1rga3hersnq1o9ymhf4r', 'ODkzY2IxY2ViNjdkYWIwZmUzMjY1ZjA4ZWZjODk5ZWEyNDAyZDFiYzp7InVzZXJfaWQiOjF9', '2020-04-14 01:40:28.553070');
+INSERT INTO `django_session` VALUES ('irnl8iwqa3i7pwnklidiiz2iu5auxhqq', 'ODkzY2IxY2ViNjdkYWIwZmUzMjY1ZjA4ZWZjODk5ZWEyNDAyZDFiYzp7InVzZXJfaWQiOjF9', '2020-04-27 12:45:43.945668');
+INSERT INTO `django_session` VALUES ('j484teaxawxai2vekhso12cfk2dsxrg2', 'ODkzY2IxY2ViNjdkYWIwZmUzMjY1ZjA4ZWZjODk5ZWEyNDAyZDFiYzp7InVzZXJfaWQiOjF9', '2020-04-14 01:54:38.345539');
+INSERT INTO `django_session` VALUES ('l3vu9y03v2rslbp8nvmz7e8nyj8p5ppy', 'ODkzY2IxY2ViNjdkYWIwZmUzMjY1ZjA4ZWZjODk5ZWEyNDAyZDFiYzp7InVzZXJfaWQiOjF9', '2020-04-27 13:07:18.004844');
+INSERT INTO `django_session` VALUES ('lsc9mhvw42jicayniz4lnj4smn0okiz4', 'ODkzY2IxY2ViNjdkYWIwZmUzMjY1ZjA4ZWZjODk5ZWEyNDAyZDFiYzp7InVzZXJfaWQiOjF9', '2020-04-14 01:49:42.021293');
+INSERT INTO `django_session` VALUES ('pz8kxyo05a9s4xzj2trh7mu5f31r1lg3', 'ODkzY2IxY2ViNjdkYWIwZmUzMjY1ZjA4ZWZjODk5ZWEyNDAyZDFiYzp7InVzZXJfaWQiOjF9', '2020-04-27 13:32:27.267629');
+INSERT INTO `django_session` VALUES ('q8la26xmvgddfoclklx5shqnuqldel9r', 'ODkzY2IxY2ViNjdkYWIwZmUzMjY1ZjA4ZWZjODk5ZWEyNDAyZDFiYzp7InVzZXJfaWQiOjF9', '2020-04-14 01:39:41.284176');
+INSERT INTO `django_session` VALUES ('sfq7y6yd1tyabri3l1lqsuhgbxr49bww', 'ODkzY2IxY2ViNjdkYWIwZmUzMjY1ZjA4ZWZjODk5ZWEyNDAyZDFiYzp7InVzZXJfaWQiOjF9', '2020-04-28 14:39:23.961074');
+INSERT INTO `django_session` VALUES ('sz9pqwgmw1khcghrvo828q365scsqxy8', 'ODkzY2IxY2ViNjdkYWIwZmUzMjY1ZjA4ZWZjODk5ZWEyNDAyZDFiYzp7InVzZXJfaWQiOjF9', '2020-04-14 02:14:57.145732');
+INSERT INTO `django_session` VALUES ('vmisdbez73opoa70r6xa4kr8cl6gv48e', 'ODkzY2IxY2ViNjdkYWIwZmUzMjY1ZjA4ZWZjODk5ZWEyNDAyZDFiYzp7InVzZXJfaWQiOjF9', '2020-04-27 13:08:27.458870');
+INSERT INTO `django_session` VALUES ('vs6c41ij4yrwokb3syacp3texqp3hvqj', 'ODkzY2IxY2ViNjdkYWIwZmUzMjY1ZjA4ZWZjODk5ZWEyNDAyZDFiYzp7InVzZXJfaWQiOjF9', '2020-04-14 02:12:41.708066');
+INSERT INTO `django_session` VALUES ('wge3htprpa76u83vz6ggrkx21xl98ere', 'ODkzY2IxY2ViNjdkYWIwZmUzMjY1ZjA4ZWZjODk5ZWEyNDAyZDFiYzp7InVzZXJfaWQiOjF9', '2020-04-14 01:37:30.641867');
+INSERT INTO `django_session` VALUES ('wm8q4ydu6v8vg3z8oybbowrrveq3r3l7', 'ODkzY2IxY2ViNjdkYWIwZmUzMjY1ZjA4ZWZjODk5ZWEyNDAyZDFiYzp7InVzZXJfaWQiOjF9', '2020-04-14 02:13:16.769073');
+INSERT INTO `django_session` VALUES ('wtjvzplppycvgqcq7k8dy9hm98cl5s7s', 'ODkzY2IxY2ViNjdkYWIwZmUzMjY1ZjA4ZWZjODk5ZWEyNDAyZDFiYzp7InVzZXJfaWQiOjF9', '2020-04-27 13:01:15.430007');
+INSERT INTO `django_session` VALUES ('xrvo1dexrvrmgv4o074bm45p8g7s8qgp', 'ODkzY2IxY2ViNjdkYWIwZmUzMjY1ZjA4ZWZjODk5ZWEyNDAyZDFiYzp7InVzZXJfaWQiOjF9', '2020-04-14 01:38:17.932897');
 
 -- ----------------------------
 -- Table structure for ershoufang
