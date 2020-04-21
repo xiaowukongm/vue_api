@@ -7,7 +7,8 @@ from django.shortcuts import render
 from django.views.decorators.http import require_GET,require_POST
 from django.core.paginator import Paginator,PageNotAnInteger,EmptyPage
 import json
-from .models import User,premission,premission_api,role
+from .models import User,premission,premission_api
+from .models import role
 from .permissions import check_permission
 
 
@@ -188,50 +189,6 @@ def delete_user(request):
         raise e
     return HttpResponse(json.dumps(result))
 
-# 获取权限列表树形结构
-# @check_permission
-def get_premission_tree(request):
-    premission_list = premission.objects.all()
-    # 存放一级权限
-    premission_dict = {}
-    for i in premission_list:
-        if i.ps_level == "0":
-            premission_api_obj = premission_api.objects.filter(ps_id=i.id)
-            premission_dict[i.id] = {
-                "id":i.id,
-                "authName":i.ps_name,
-                "path":premission_api_obj[0].ps_api_path,
-                "pid":i.ps_pid,
-                "children":[]
-            }
-    tmpResult = {}
-    # 二级权限
-    for i in premission_list:
-        if i.ps_level == "1":
-            premission_api_obj = premission_api.objects.filter(ps_id=i.id)
-            tmpResult[i.id] = {
-                "id": i.id,
-                "authName": i.ps_name,
-                "path": premission_api_obj[0].ps_api_path,
-                "pid": i.ps_pid,
-                "children": []
-            }
-            premission_dict[i.ps_pid]["children"].append(tmpResult[i.id])
-
-    # 3级权限
-    for i in premission_list:
-        if i.ps_level == "2":
-            premission_api_obj = premission_api.objects.filter(ps_id=i.id)
-
-            tmpResult[i.ps_pid]["children"].append({
-                "id": i.id,
-                "authName": i.ps_name,
-                "path": premission_api_obj[0].ps_api_path,
-                "pid": i.ps_pid
-            })
-    return HttpResponse(json.dumps(premission_dict))
-
-
 # 获取权限列表
 def get_premission_list(request):
     result = {"result":"fail","right_list":[]}
@@ -255,9 +212,72 @@ def get_premission_list(request):
     return HttpResponse(json.dumps(result))
 
 # 获取角色列表
-def roles(request):
-    result = serializers.serialize('json', role.objects.all())
+def get_roles(request):
+    result = {"result": "fail","all_role_list":[],}
+    all_role_list = []
+    role_list = role.objects.all()
+    for r in role_list:
+        ps_ids = r.ps_ids
+        role_dict = {
+            "id":r.id,
+            "roleName":r.role_name,
+            "roleDes":r.role_desc,
+            "children":[],
+        }
+        role_dict['children'] = get_premission_tree(ps_ids)
+        all_role_list.append(role_dict)
+    # result = serializers.serialize('json', role.objects.all())
+    result['result'] = 'success'
+    result['all_role_list'] = all_role_list
     return HttpResponse(json.dumps(result))
+
+# 获取权限列表树形结构
+# @check_permission
+def get_premission_tree(ids):
+    premission_list = ids.split(",")
+    # premission_list = premission.objects.all()
+    # ids_list = ids.split(",")
+    # 存放一级权限
+    premission_dict = {}
+    for i in premission_list:
+        premissions = premission.objects.filter(id=int(i))[0]
+        if premissions.ps_level == "0":
+            premission_api_obj = premission_api.objects.filter(ps_id=premissions.id)
+            premission_dict[premissions.id] = {
+                "id":premissions.id,
+                "authName":premissions.ps_name,
+                "path":premission_api_obj[0].ps_api_path,
+                "pid":premissions.ps_pid,
+                "children":[]
+            }
+    tmpResult = {}
+    # 二级权限
+    for i in premission_list:
+        premissions = premission.objects.filter(id=int(i))[0]
+        if premissions.ps_level == "1":
+            premission_api_obj = premission_api.objects.filter(ps_id=premissions.id)
+            tmpResult[premissions.id] = {
+                "id": premissions.id,
+                "authName": premissions.ps_name,
+                "path": premission_api_obj[0].ps_api_path,
+                "pid": premissions.ps_pid,
+                "children": []
+            }
+            premission_dict[premissions.ps_pid]["children"].append(tmpResult[premissions.id])
+
+    # 3级权限
+    for i in premission_list:
+        premissions = premission.objects.filter(id=int(i))[0]
+        if premissions.ps_level == "2":
+            premission_api_obj = premission_api.objects.filter(ps_id=premissions.id)
+
+            tmpResult[premissions.ps_pid]["children"].append({
+                "id": premissions.id,
+                "authName": premissions.ps_name,
+                "path": premission_api_obj[0].ps_api_path,
+                "pid": premissions.ps_pid
+            })
+    return premission_dict
 
 # ==================================================================================
 def copy_case(request):
@@ -309,4 +329,12 @@ def check_copy_case_name(request):
         else:
             result["copyState"].append({"name": userName, "value": value, "caseName":caseName,"casePath":casePath,"sameName": False})
     print(result)
+    return HttpResponse(json.dumps(result))
+
+
+def test(request):
+    data = [{"name": "白居易", "value": "1"}, {"name": "李白", "value": "2"}, {"name": "韩明明", "value": "3"},
+            {"name": "韩明明1", "value": "4"}, {"name": "韩明明2", "value": "5"}]
+
+    result = {'code':0,'data':data}
     return HttpResponse(json.dumps(result))

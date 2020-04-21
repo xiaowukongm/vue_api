@@ -11,13 +11,14 @@ urlpatterns = [
     url(r'^edit_user/', views.edit_user,name="edit_user"),
     url(r'^delete_user/', views.delete_user,name="delete_user"),
     url(r'^rights/', views.get_premission_list,name="rights"),
-    url(r'^rights/', views.get_premission_tree,name="rights"),
-    url(r'^roles/', views.roles,name="roles"),
+    url(r'^rights_tree/', views.get_premission_tree,name="rights_tree"),
+    url(r'^roles/', views.get_roles,name="roles"),
 
 
 
 
     url(r'^copy_case/', views.copy_case,name="copy_case"),
     url(r'^check_copy_case_name/', views.check_copy_case_name,name="check_copy_case_name"),
+    url(r'^test/', views.test,name="test"),
 
 ]

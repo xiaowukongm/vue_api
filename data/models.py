@@ -10,7 +10,6 @@ class User(models.Model):
     role_name = models.CharField(max_length=50,default="")
     role = models.ForeignKey("data.role",on_delete=models.SET_NULL,null=True)
 
-
 # 角色
 class role(models.Model):
     role_name = models.CharField(max_length=50)
