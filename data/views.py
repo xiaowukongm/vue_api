@@ -176,7 +176,7 @@ def edit_user(request):
         raise e
     return HttpResponse(json.dumps(result))
 
-
+# @check_permission
 def delete_user(request):
     result = {"result": "fail"}
     user_id = request.GET.get("user_id")
@@ -211,6 +211,24 @@ def get_premission_list(request):
         raise e
     return HttpResponse(json.dumps(result))
 
+# 获取所有权限列表树形结构
+def get_premission_tree(request):
+    result = {"result": "fail", "right_list": []}
+    try:
+        premission_list = premission.objects.all()
+        all_right_ids = []
+        for i in premission_list:
+            all_right_ids.append(str(i.id))
+        # 根据权限ids获取权限列表树形结构
+        right_list = get_rights_tree_by_ids(','.join(all_right_ids))
+        print(right_list)
+        result["result"] = 'success'
+        result["right_list"] = right_list
+    except Exception as e:
+        raise e
+    return HttpResponse(json.dumps(result))
+
+
 # 获取角色列表
 def get_roles(request):
     result = {"result": "fail","all_role_list":[],}
@@ -224,16 +242,20 @@ def get_roles(request):
             "roleDes":r.role_desc,
             "children":[],
         }
-        role_dict['children'] = get_premission_tree(ps_ids)
+        role_dict['children'] = get_rights_tree_by_ids(ps_ids)
         all_role_list.append(role_dict)
     # result = serializers.serialize('json', role.objects.all())
     result['result'] = 'success'
     result['all_role_list'] = all_role_list
     return HttpResponse(json.dumps(result))
 
-# 获取权限列表树形结构
-# @check_permission
-def get_premission_tree(ids):
+# 根据权限ids获取权限列表树形结构
+def get_rights_tree_by_ids(ids):
+    """
+    根据角色的权限ids返回权限树结构，不用返回没有上级权限的下级权限，比如如果没有用户管理权限，即使ids中有用户列表权限也不去返回
+    :param ids:
+    :return:
+    """
     premission_list = ids.split(",")
     # premission_list = premission.objects.all()
     # ids_list = ids.split(",")
@@ -256,28 +278,59 @@ def get_premission_tree(ids):
         premissions = premission.objects.filter(id=int(i))[0]
         if premissions.ps_level == "1":
             premission_api_obj = premission_api.objects.filter(ps_id=premissions.id)
-            tmpResult[premissions.id] = {
-                "id": premissions.id,
-                "authName": premissions.ps_name,
-                "path": premission_api_obj[0].ps_api_path,
-                "pid": premissions.ps_pid,
-                "children": []
-            }
-            premission_dict[premissions.ps_pid]["children"].append(tmpResult[premissions.id])
+            tem = premission_dict.get(premissions.ps_pid)
+            if tem :
+                tmpResult[premissions.id] = {
+                    "id": premissions.id,
+                    "authName": premissions.ps_name,
+                    "path": premission_api_obj[0].ps_api_path,
+                    "pid": premissions.ps_pid,
+                    "children": []
+                }
+                tem["children"].append(tmpResult[premissions.id])
 
     # 3级权限
     for i in premission_list:
         premissions = premission.objects.filter(id=int(i))[0]
         if premissions.ps_level == "2":
             premission_api_obj = premission_api.objects.filter(ps_id=premissions.id)
-
-            tmpResult[premissions.ps_pid]["children"].append({
-                "id": premissions.id,
-                "authName": premissions.ps_name,
-                "path": premission_api_obj[0].ps_api_path,
-                "pid": premissions.ps_pid
-            })
+            three_tem = tmpResult.get(premissions.ps_pid)
+            if three_tem:
+                three_tem["children"].append({
+                    "id": premissions.id,
+                    "authName": premissions.ps_name,
+                    "path": premission_api_obj[0].ps_api_path,
+                    "pid": premissions.ps_pid
+                })
     return premission_dict
+
+# 根据权限id删除角色对应的权限并返回角色最新的权限列表
+def remove_right_by_id(request):
+    """
+    根据权限id删除角色对应的权限并返回角色最新的权限列表,只删除当前所传的权限，
+    不管其下级权限（删除二级权限时不去管当前角色下当前二级权限下的三级权限），
+    在查询权限时做限制即可（get_premission_tree(ids)查询时不去返回没有二级权限的三级权限）
+    :param request:
+    :return:
+    """
+    result = {"result":"fail","role_new_right":[]}
+    roleId = request.GET.get("roleId")
+    right_id = request.GET.get("rightId")
+    try:
+        role_obj = role.objects.filter(id=int(roleId))
+        ps_ids = role_obj[0].ps_ids.split(',')
+        ps_ids.remove(right_id)
+        ps_ids_str=",".join(ps_ids)
+        role_obj.update(ps_ids=ps_ids_str)
+        # 获取最新的权限数据返回给前端，以做到前端可以值刷新权限数据不刷新整个角色列表
+        role_new_right = get_rights_tree_by_ids(ps_ids_str)
+        result['result'] = 'success'
+        result['role_new_right'] = role_new_right
+    except Exception as e:
+        raise e
+    return HttpResponse(json.dumps(result))
+
+
 
 # ==================================================================================
 def copy_case(request):
