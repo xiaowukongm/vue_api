@@ -14,6 +14,12 @@ urlpatterns = [
     url(r'^rights_tree/', views.get_premission_tree, name="rights_tree"),
     url(r'^roles/', views.get_roles,name="roles"),
     url(r'^remove_right_by_id/', views.remove_right_by_id,name="remove_right_by_id"),
+    url(r'^allot_rights/', views.allot_rights,name="allot_rights"),
+    url(r'^add_role/', views.add_role,name="add_role"),
+    url(r'^get_role_by_id/', views.get_role_by_id,name="get_role_by_id"),
+    url(r'^edit_role/', views.edit_role,name="edit_role"),
+    url(r'^delete_role/', views.delete_role,name="delete_role"),
+
 
 
 

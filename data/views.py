@@ -221,9 +221,9 @@ def get_premission_tree(request):
             all_right_ids.append(str(i.id))
         # 根据权限ids获取权限列表树形结构
         right_list = get_rights_tree_by_ids(','.join(all_right_ids))
-        print(right_list)
+        # print(right_list)
         result["result"] = 'success'
-        result["right_list"] = right_list
+        result["right_list"] = list(right_list.values())
     except Exception as e:
         raise e
     return HttpResponse(json.dumps(result))
@@ -242,11 +242,64 @@ def get_roles(request):
             "roleDes":r.role_desc,
             "children":[],
         }
-        role_dict['children'] = get_rights_tree_by_ids(ps_ids)
+        if ps_ids:
+            role_dict['children'] = list(get_rights_tree_by_ids(ps_ids).values())
         all_role_list.append(role_dict)
     # result = serializers.serialize('json', role.objects.all())
     result['result'] = 'success'
     result['all_role_list'] = all_role_list
+    return HttpResponse(json.dumps(result))
+
+# 添加角色
+def add_role(request):
+    result = {"result": "fail"}
+    roleName = request.POST.get("roleName")
+    roleDes = request.POST.get("roleDes")
+    try:
+        role_obj = role(role_name=roleName,role_desc=roleDes)
+        role_obj.save()
+        result['result']="success"
+    except Exception as e:
+        raise e
+    return HttpResponse(json.dumps(result))
+
+# 通过id获取角色
+def get_role_by_id(request):
+    result = {"result": "fail", "role": None}
+    role_id = request.GET.get("role_id")
+    try:
+        role_obj = role.objects.filter(id=role_id).values()
+        result["result"] = "success"
+        result["role"] = role_obj[0]
+    except Exception as e:
+        raise e
+    return HttpResponse(json.dumps(result))
+
+# 修改角色信息
+def edit_role(request):
+    result = {"result": "fail"}
+    role_id = request.POST.get("id")
+    update_data = {
+        "role_name": request.POST.get("role_name"),
+        "role_desc": request.POST.get("role_desc")
+    }
+    try:
+        role.objects.filter(id=role_id).update(**update_data)
+        result["result"] = "success"
+    except Exception as e:
+        raise e
+    return HttpResponse(json.dumps(result))
+
+# 删除角色
+def delete_role(request):
+    result = {"result": "fail"}
+    role_id = request.GET.get("role_id")
+    try:
+        if role_id:
+            role.objects.filter(id=role_id).delete()
+            result["result"] = "success"
+    except Exception as e:
+        raise e
     return HttpResponse(json.dumps(result))
 
 # 根据权限ids获取权限列表树形结构
@@ -330,7 +383,18 @@ def remove_right_by_id(request):
         raise e
     return HttpResponse(json.dumps(result))
 
-
+# 为角色分配权限
+def allot_rights(request):
+    result = {"result": "fail"}
+    role_id = request.GET.get("role_id")
+    right_ids = request.GET.get("right_ids")
+    try:
+        role_obj = role.objects.filter(id=role_id)
+        role_obj.update(ps_ids=right_ids)
+        result['result']='success'
+    except Exception as e:
+        raise e
+    return HttpResponse(json.dumps(result))
 
 # ==================================================================================
 def copy_case(request):
